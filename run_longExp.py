@@ -100,7 +100,7 @@ Exp = Exp_Main
 if args.is_training:
     for ii in range(args.itr):
         # setting record of experiments
-        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}'.format(
             args.model_id,
             args.model,
             args.data,
@@ -116,6 +116,7 @@ if args.is_training:
             args.factor,
             args.embed,
             args.distil,
+            args.freq,
             args.des, ii)
 
         exp = Exp(args)  # set experiments
@@ -132,7 +133,7 @@ if args.is_training:
         torch.cuda.empty_cache()
 else:
     ii = 0
-    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,
+    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}'.format(args.model_id,
                                                                                                   args.model,
                                                                                                   args.data,
                                                                                                   args.features,
@@ -147,6 +148,7 @@ else:
                                                                                                   args.factor,
                                                                                                   args.embed,
                                                                                                   args.distil,
+                                                                                                  args.freq,
                                                                                                   args.des, ii)
 
     exp = Exp(args)  # set experiments
