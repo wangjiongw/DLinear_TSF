@@ -388,6 +388,7 @@ class Dataset_eload(Dataset):
         self.data_x = data[border1:border2:self.sample_freq]
         self.data_y = data[border1:border2:self.sample_freq]
         self.data_stamp = data_stamp[::self.sample_freq]
+        print('data_x: {}; data_y: {}; data_stamp: {}'.format(len(self.data_x), len(self.data_y), len(self.data_stamp)))
 
     def __getitem__(self, index):
         s_begin = index
@@ -403,7 +404,7 @@ class Dataset_eload(Dataset):
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
     def __len__(self):
-        return (len(self.data_x) - self.seq_len - self.pred_len + 1) // self.sample_freq
+        return (len(self.data_x) - self.seq_len - self.pred_len + 1)
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)

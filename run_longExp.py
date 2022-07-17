@@ -38,8 +38,8 @@ parser.add_argument('--pred_len', type=int, default=96, help='prediction sequenc
 
 # DLinear
 parser.add_argument('--individual', action='store_true', default=False, help='DLinear: a linear layer for each variate(channel) individually')
-# Formers 
-parser.add_argument('--embed_type', type=int, default=0, 
+# Formers
+parser.add_argument('--embed_type', type=int, default=0,
                     help='0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
 parser.add_argument('--enc_in', type=int, default=7, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
 parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
@@ -93,7 +93,7 @@ if args.use_gpu and args.use_multi_gpu:
 
 print('Args in experiment:')
 # print(args)
-print(json.dump(vars(args), indent=4))
+print(json.dumps(vars(args), indent=4))
 
 Exp = Exp_Main
 
