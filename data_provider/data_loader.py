@@ -325,7 +325,9 @@ class Dataset_eload(Dataset):
         self.target = target
         self.scale = scale
         self.timeenc = timeenc
+        freq_dict = {'h': 12, 'q': 3, 'f': 1}           # raw dataset in frequency of 5 minutes
         self.freq = freq
+        self.sample_freq = freq_dict[freq]
 
         self.root_path = root_path
         self.data_path = data_path
@@ -383,9 +385,9 @@ class Dataset_eload(Dataset):
             data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
 
-        self.data_x = data[border1:border2]
-        self.data_y = data[border1:border2]
-        self.data_stamp = data_stamp
+        self.data_x = data[border1:border2:self.sample_freq]
+        self.data_y = data[border1:border2:self.sample_freq]
+        self.data_stamp = data_stamp[::self.sample_freq]
 
     def __getitem__(self, index):
         s_begin = index

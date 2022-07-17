@@ -6,72 +6,72 @@ fi
 if [ ! -d "./logs/LongForecasting" ]; then
     mkdir ./logs/LongForecasting
 fi
-seq_len=336
+seq_len=48
 
 python -u run_longExp.py \
   --is_training 1 \
   --root_path ./dataset/ \
-  --data_path electricity.csv \
-  --model_id Electricity_$seq_len'_'96 \
+  --data_path dongguan.csv \
+  --model_id Electricity_$seq_len'_'6 \
   --model DLinear \
-  --data custom \
-  --features M \
+  --data eload \
+  --features S \
   --seq_len $seq_len \
-  --pred_len 96 \
+  --pred_len 24 \
   --enc_in 321 \
   --des 'Exp' \
   --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  2>&1 | tee ./logs/LongForecasting/DLinear_electricity_$seq_len'_'96.log 
+  2>&1 | tee ./logs/LongForecasting/DLinear_eload_$seq_len'_'6.log 
 
 python -u run_longExp.py \
   --is_training 1 \
   --root_path ./dataset/ \
-  --data_path electricity.csv \
-  --model_id Electricity_$seq_len'_'192 \
+  --data_path dongguan.csv \
+  --model_id Electricity_$seq_len'_'12 \
   --model DLinear \
-  --data custom \
-  --features M \
+  --data eload \
+  --features S \
   --seq_len $seq_len \
-  --pred_len 192 \
+  --pred_len 12 \
   --enc_in 321 \
   --des 'Exp' \
   --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  2>&1 | tee ./logs/LongForecasting/DLinear_electricity_$seq_len'_'192.log  
+  2>&1 | tee ./logs/LongForecasting/DLinear_eload_$seq_len'_'12.log  
 
 python -u run_longExp.py \
   --is_training 1 \
   --root_path ./dataset/ \
-  --data_path electricity.csv \
-  --model_id Electricity_$seq_len'_'336 \
+  --data_path dongguan.csv \
+  --model_id Electricity_$seq_len'_'24 \
   --model DLinear \
-  --data custom \
-  --features M \
+  --data eload \
+  --features S \
   --seq_len $seq_len \
-  --pred_len 336 \
+  --pred_len 24 \
   --enc_in 321 \
   --des 'Exp' \
   --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  2>&1 | tee ./logs/LongForecasting/DLinear_electricity_$seq_len'_'336.log  
+  2>&1 | tee ./logs/LongForecasting/DLinear_eload_$seq_len'_'24.log  
 
 python -u run_longExp.py \
   --is_training 1 \
   --root_path ./dataset/ \
-  --data_path electricity.csv \
-  --model_id Electricity_$seq_len'_'720 \
+  --data_path dongguan.csv \
+  --model_id Electricity_$seq_len'_'48 \
   --model DLinear \
-  --data custom \
-  --features M \
+  --data eload \
+  --features S \
   --seq_len $seq_len \
-  --pred_len 720 \
+  --pred_len 48 \
   --enc_in 321 \
   --des 'Exp' \
   --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  2>&1 | tee ./logs/LongForecasting/DLinear_electricity_$seq_len'_'720.log  
+  2>&1 | tee ./logs/LongForecasting/DLinear_eload_$seq_len'_'48.log  
