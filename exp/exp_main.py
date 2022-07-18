@@ -15,7 +15,7 @@ import time
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
-from tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings('ignore')
 
@@ -116,7 +116,7 @@ class Exp_Main(Exp_Basic):
         time_now = time.time()
 
         train_steps = len(train_loader)
-        early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
+        # early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
         model_optim = self._select_optimizer()
         criterion = self._select_criterion()
@@ -199,10 +199,10 @@ class Exp_Main(Exp_Basic):
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(vali_loss, self.model, path)
-            if early_stopping.early_stop:
-                print("Early stopping")
-                break
+            # early_stopping(vali_loss, self.model, path)
+            # if early_stopping.early_stop:
+            #     print("Early stopping")
+            #     break
 
             lr = adjust_learning_rate(model_optim, epoch + 1, self.args)
             self.writer.add_scalar('Train/LR', lr, epoch + 1, epoch + 1)
