@@ -15,6 +15,7 @@ import time
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
+from tensorboard import SummaryWriter
 
 warnings.filterwarnings('ignore')
 
@@ -38,6 +39,10 @@ class Exp_Main(Exp_Basic):
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
         return model
+
+    def _build_writer(self, path):
+        self.writer = SummaryWriter(path)
+        return self.writer
 
     def _get_data(self, flag):
         data_set, data_loader = data_provider(self.args, flag)
@@ -105,6 +110,8 @@ class Exp_Main(Exp_Basic):
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
+        # writer = SummaryWriter(path)
+        self._build_writer(path)
 
         time_now = time.time()
 
@@ -169,11 +176,12 @@ class Exp_Main(Exp_Basic):
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    print("\titers: {0} / {1}, epoch: {2} | loss: {3:.7f}".format(i + 1, len(train_loader), epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
                     print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                     iter_count = 0
+                    self.writer.add_scalar("Train/Loss_Train_Iter", loss.item(), epoch * len(train_loader) + i)
                     time_now = time.time()
 
                 if self.args.use_amp:
@@ -196,7 +204,11 @@ class Exp_Main(Exp_Basic):
                 print("Early stopping")
                 break
 
-            adjust_learning_rate(model_optim, epoch + 1, self.args)
+            lr = adjust_learning_rate(model_optim, epoch + 1, self.args)
+            self.writer.add_scalar('Train/LR', lr, epoch + 1, epoch + 1)
+            self.writer.add_scalar('Train/Loss_Train_Epoch', train_loss, epoch + 1)
+            self.writer.add_scalar('Train/Loss_Val_Epoch', vali_loss, epoch + 1)
+            self.writer.add_scalar('Train/Loss_Test_Epoch', test_loss, epoch + 1)
 
         # best_model_path = path + '/' + 'checkpoint.pth'
         best_model_path = os.path.join(path, 'checkpoint.pth')
@@ -286,10 +298,10 @@ class Exp_Main(Exp_Basic):
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
-        print('mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
+        print('[Test] mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
+        f.write('[Test] mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
         f.write('\n')
         f.write('\n')
         f.close()
