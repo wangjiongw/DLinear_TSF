@@ -116,7 +116,7 @@ class Exp_Main(Exp_Basic):
         time_now = time.time()
 
         train_steps = len(train_loader)
-        # early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
+        early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
         model_optim = self._select_optimizer()
         criterion = self._select_criterion()
@@ -165,7 +165,7 @@ class Exp_Main(Exp_Basic):
                     else:
                         if self.args.output_attention:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            
+
                         else:
                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
                     # print(outputs.shape,batch_y.shape)
@@ -177,6 +177,7 @@ class Exp_Main(Exp_Basic):
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0} / {1}, epoch: {2} | loss: {3:.7f}".format(i + 1, len(train_loader), epoch + 1, loss.item()))
+
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
                     print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
@@ -199,7 +200,7 @@ class Exp_Main(Exp_Basic):
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            # early_stopping(vali_loss, self.model, path)
+            early_stopping(vali_loss, self.model, path)
             # if early_stopping.early_stop:
             #     print("Early stopping")
             #     break
@@ -218,7 +219,7 @@ class Exp_Main(Exp_Basic):
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
-        
+
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
@@ -275,10 +276,10 @@ class Exp_Main(Exp_Basic):
                 preds.append(pred)
                 trues.append(true)
                 inputx.append(batch_x.detach().cpu().numpy())
-                if i % 20 == 0:
+                if i % 10 == 0:
                     input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    gt = np.concatenate((input[0, :, -1] * 10000, true[0, :, -1] * 10000), axis=0)
+                    pd = np.concatenate((input[0, :, -1] * 10000, pred[0, :, -1] * 10000), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
         if self.args.test_flop:
@@ -298,17 +299,22 @@ class Exp_Main(Exp_Basic):
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
-        print('[Test] mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
+        print('max: {} | {}; min: {} | {}'.format(np.max(preds), np.max(trues), np.min(preds), np.min(trues)))
+        if hasattr(self, 'writer'):
+            self.writer.add_scalar('Test/MAE', mae, 1)
+            self.writer.add_scalar('Test/MSE', mse, 1)
+            self.writer.add_scalar('Test/MAPE', mape, 1)
+        print('[Test] mse:{}, mae:{}, 1 - mape: {}, rse:{}, corr:{}'.format(mse, mae, 1 - mape, rse, corr))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('[Test] mse:{}, mae:{}, mape: {}, rse:{}, corr:{}'.format(mse, mae, mape, rse, corr))
+        f.write('[Test] mse:{}, mae:{}, 1 - mape: {}, rse:{}, corr:{}'.format(mse, mae, 1 - mape, rse, corr))
         f.write('\n')
         f.write('\n')
         f.close()
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,rse, corr]))
         np.save(folder_path + 'pred.npy', preds)
-        # np.save(folder_path + 'true.npy', trues)
+        np.save(folder_path + 'true.npy', trues)
         # np.save(folder_path + 'x.npy', inputx)
         return
 

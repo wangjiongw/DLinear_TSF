@@ -290,7 +290,7 @@ class Dataset_Custom(Dataset):
         return self.scaler.inverse_transform(data)
 
 
-class Dataset_eload(Dataset):  
+class Dataset_eload(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='dongguan.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
@@ -325,7 +325,7 @@ class Dataset_eload(Dataset):
         self.target = target
         self.scale = scale
         self.timeenc = timeenc
-        freq_dict = {'h': 12, 'q': 3, 'f': 1}           # raw dataset in frequency of 5 minutes
+        freq_dict = {'h': 12, 'q': 3, 't': 1}           # raw dataset in frequency of 5 minutes
         self.freq = freq
         self.sample_freq = freq_dict[freq]
 
@@ -346,12 +346,12 @@ class Dataset_eload(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        
+
         # split dataset
         num_train = int(len(df_raw) * 0.7)
-        num_test = int(len(df_raw) * 0.2)
-        num_vali = len(df_raw) - num_train - num_test
-        border1s = [0, num_train - self.seq_len, len(df_raw) - num_test - self.seq_len]
+        num_test = int(len(df_raw) * 0.2) // 12 * 12
+        num_vali = (len(df_raw) - num_train - num_test)//12*12
+        border1s = [0, (num_train - self.seq_len)//12*12, (len(df_raw) - num_test - self.seq_len)//12*12]
         border2s = [num_train, num_train + num_vali, len(df_raw)]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
@@ -367,8 +367,10 @@ class Dataset_eload(Dataset):
             self.scaler.fit(train_data.values)
             # print(self.scaler.mean_)
             # exit()
-            data = self.scaler.transform(df_data.values)
+            data_norm = self.scaler.transform(df_data.values)
+            data = df_data.values
         else:
+            data_norm = df_data.values
             data = df_data.values
 
         # process datastamp
@@ -379,14 +381,15 @@ class Dataset_eload(Dataset):
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
             df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
             df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
-            df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+            if self.freq == 'q' or self.freq == 't':
+                df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
             data_stamp = df_stamp.drop(['date'], 1).values
         elif self.timeenc == 1:
             data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
 
-        self.data_x = data[border1:border2:self.sample_freq]
-        self.data_y = data[border1:border2:self.sample_freq]
+        self.data_x = data_norm[border1:border2:self.sample_freq]
+        self.data_y = data[border1:border2:self.sample_freq] / 10000
         self.data_stamp = data_stamp[::self.sample_freq]
         print('data_x: {}; data_y: {}; data_stamp: {}'.format(len(self.data_x), len(self.data_y), len(self.data_stamp)))
 
@@ -394,7 +397,7 @@ class Dataset_eload(Dataset):
         s_begin = index
         s_end = s_begin + self.seq_len                              # input frame
         r_begin = s_end - self.label_len                            # token for prediction
-        r_end = r_begin + self.label_len + self.pred_len            # 
+        r_end = r_begin + self.label_len + self.pred_len            #
 
         seq_x = self.data_x[s_begin: s_end]                         # length == seq_len
         seq_y = self.data_y[r_begin: r_end]                         # length == label_len + pred_len
