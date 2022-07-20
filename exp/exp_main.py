@@ -53,7 +53,7 @@ class Exp_Main(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        if self.args.loss == 'MSE':
+        if self.args.loss.lower() == 'mse':
             criterion = nn.MSELoss()
         else:
             criterion = nn.L1Loss()
