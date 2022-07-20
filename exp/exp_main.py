@@ -303,7 +303,7 @@ class Exp_Main(Exp_Basic):
         if hasattr(self, 'writer'):
             self.writer.add_scalar('Test/MAE', mae, 1)
             self.writer.add_scalar('Test/MSE', mse, 1)
-            self.writer.add_scalar('Test/MAPE', mape, 1)
+            self.writer.add_scalar('Test/MAPE', 1 - mape, 1)
         print('[Test] mse:{}, mae:{}, 1 - mape: {}, rse:{}, corr:{}'.format(mse, mae, 1 - mape, rse, corr))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")

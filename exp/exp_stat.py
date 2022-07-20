@@ -68,7 +68,7 @@ class Exp_Main(Exp_Basic):
                 preds.append(pred)
                 trues.append(true)
                 inputx.append(batch_x)
-                if i % 20 == 0:
+                if i % 10 == 0:
                     input = batch_x
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
@@ -88,10 +88,10 @@ class Exp_Main(Exp_Basic):
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
         corr = []
-        print('mse:{}, mae:{}, rse:{}, corr:{}'.format(mse, mae, rse, corr))
+        print('[Test] mse:{}, mae:{}, 1 - mape: {}, rse:{}, corr:{}'.format(mse, mae, 1 - mape, rse, corr))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, rse:{}, corr:{}'.format(mse, mae, rse, corr))
+        f.write('[Test] mse:{}, mae:{}, 1 - mape: {}, rse:{}, corr:{}'.format(mse, mae, 1 - mape, rse, corr))
         f.write('\n')
         f.write('\n')
         f.close()

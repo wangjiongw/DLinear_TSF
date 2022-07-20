@@ -28,8 +28,12 @@ parser.add_argument('--features', type=str, default='M',
 parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 parser.add_argument('--sample', type=float, default=1, help='Sampling percentage, the inference time of ARIMA and SARIMA is too long, you might sample 0.01')
+parser.add_argument('--freq', type=str, default='h',
+                    help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
 
 # forecasting task
+parser.add_argument('--embed', type=str, default='timeF',
+                    help='time features encoding, options:[timeF, fixed, learned]')
 parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
 parser.add_argument('--label_len', type=int, default=48, help='start token length') # Just for reusing data loader
 parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
@@ -39,7 +43,12 @@ parser.add_argument('--num_workers', type=int, default=10, help='data loader num
 parser.add_argument('--itr', type=int, default=2, help='experiments times')
 parser.add_argument('--batch_size', type=int, default=100, help='batch size of train input data')
 parser.add_argument('--des', type=str, default='test', help='exp description')
-
+# GPU
+parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
+parser.add_argument('--gpu', type=int, default=0, help='gpu')
+parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
+parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
+parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 args = parser.parse_args()
 
 args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
