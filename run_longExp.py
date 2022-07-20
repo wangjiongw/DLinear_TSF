@@ -62,6 +62,7 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
+parser.add_argument('--loss', type=str, default='MSE', help='loss function to optimize')
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
 parser.add_argument('--itr', type=int, default=2, help='experiments times')
 parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
@@ -100,7 +101,7 @@ Exp = Exp_Main
 if args.is_training:
     for ii in range(args.itr):
         # setting record of experiments
-        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}'.format(
+        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}_{}'.format(
             args.model_id,
             args.model,
             args.data,
@@ -117,6 +118,7 @@ if args.is_training:
             args.embed,
             args.distil,
             args.freq,
+            args.loss
             args.des, ii)
 
         exp = Exp(args)  # set experiments
@@ -133,7 +135,7 @@ if args.is_training:
         torch.cuda.empty_cache()
 else:
     ii = 0
-    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}'.format(args.model_id,
+    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_freq{}_{}_{}_{}'.format(args.model_id,
                                                                                                   args.model,
                                                                                                   args.data,
                                                                                                   args.features,
@@ -149,6 +151,7 @@ else:
                                                                                                   args.embed,
                                                                                                   args.distil,
                                                                                                   args.freq,
+                                                                                                  args.loss,
                                                                                                   args.des, ii)
 
     exp = Exp(args)  # set experiments
